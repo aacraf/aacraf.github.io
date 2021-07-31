@@ -1,0 +1,30 @@
+#portada{
+    text-align: center;
+    background-color: aquamarine;
+    height: 16rem;
+}
+
+
+nav{
+    text-align: center;
+    background-color: aliceblue;
+}
+
+ul#menu{
+    list-style: none;
+}
+
+ul#menu li{
+    display: inline;
+    margin-left: 4rem;
+    text-decoration: none;
+    font-weight: bold;
+    background-color: lightslategray;
+    padding: 1%;
+    border-radius: 0.5rem;
+}
+
+#content{
+    height: 40rem;
+    background-color: lightgrey;
+}
