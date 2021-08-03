@@ -5,12 +5,12 @@
 }
 
 
-nav{
+/* nav{
     text-align: center;
     background-color: aliceblue;
-}
+} */
 
-ul#menu{
+/* ul#menu{
     list-style: none;
 }
 
@@ -22,9 +22,25 @@ ul#menu li{
     background-color: lightslategray;
     padding: 1%;
     border-radius: 0.5rem;
+} */
+
+.nav-link{
+    color: black !important;
+}
+
+.active{
+    background-color: lightslategray !important;
+    font-weight: bold;
+    color: white !important;
 }
 
 #content{
     height: 40rem;
     background-color: lightgrey;
+    /* margin: 0rem 5rem 0rem 5rem; */
+}
+
+#contact{
+    width: 40%;
+    padding: 10% 5%;;
 }
