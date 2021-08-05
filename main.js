@@ -24,6 +24,7 @@ function navigate(section){
             document.querySelector('#navContact').classList.remove('active')
             // if there isn't any projects loaded we call the function to load them
             // if(!document.querySelector('#projects').firstChild){
+            document.querySelector('#projects').innerHTML = ''
             loadProjects()   
             // }
             break
@@ -43,12 +44,12 @@ function navigate(section){
     }
 }
 
-async function loadProjects(){
+function loadProjects(){
 // function that loads all the projects done
     
     // //TODO: An api to get the projects
     console.log('loading projects...')
-    await fetch('https://api.github.com/users/aacraf/repos')
+    fetch('https://api.github.com/users/aacraf/repos')
     .then(response => response.json())
     .then(repos => {
         console.log(repos.length)
