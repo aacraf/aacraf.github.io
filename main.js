@@ -1,4 +1,5 @@
 
+var converter = new showdown.Converter({emoji:true})
 
 document.addEventListener('DOMContentLoaded', () => {
     // by default show the description page
@@ -14,6 +15,7 @@ function navigate(section){
             document.querySelector('#navMe').classList.add('active');
             document.querySelector('#navProjects').classList.remove('active');
             document.querySelector('#navContact').classList.remove('active');
+            loadDescription();
             break
         case 'projects':
             document.querySelector('#me').style.display = 'none'
@@ -22,11 +24,9 @@ function navigate(section){
             document.querySelector('#navMe').classList.remove('active')
             document.querySelector('#navProjects').classList.add('active')
             document.querySelector('#navContact').classList.remove('active')
-            // if there isn't any projects loaded we call the function to load them
-            // if(!document.querySelector('#projects').firstChild){
+            // make sure that the projects are loaded everytime the button is pressed.
             document.querySelector('#projects').innerHTML = ''
             loadProjects()   
-            // }
             break
         case 'contact':
             document.querySelector('#me').style.display = 'none'
@@ -44,49 +44,127 @@ function navigate(section){
     }
 }
 
-function loadProjects(){
-// function that loads all the projects done
+
+async function loadDescription(){
+
+    // load the description from the README.md file
+    var description = null
     
-    // //TODO: An api to get the projects
-    console.log('loading projects...')
-    fetch('https://api.github.com/users/aacraf/repos')
+    await fetch('https://api.github.com/repos/aacraf/aacraf/contents/README.md')
     .then(response => response.json())
-    .then(repos => {
-        console.log(repos.length)
-        var row_size = 4
-        let count = 0;
-        for (var i = 0; i < repos.length; i++) {
-        
-            if (count % row_size == 0) {
-                var row = document.createElement('div')
-                row.classList.add('row')
-                document.querySelector('#projects').appendChild(row)
-            }
-            var project = document.createElement('div')
-            project.classList.add('project')
-            project.classList.add('col-md-3')
-            project.innerHTML =  `
-            <div class="card-body col">
-                <h5 class="card-title">${repos[i].name}</h5>
-                <p class="card-text">${repos[i].clone_url}</p>
-                <a href="${repos[i].html_url}" class="btn btn-primary">See repo</a>
-            </div> 
-            `
-            row.appendChild(project)
-            count++
-        }
+    .then(text => {
+        description = converter.makeHtml(atob(text.content))
+        document.querySelector('#me').innerHTML = description
     })
+    
+}
 
-    
-    
-    let projects = document.querySelector('#projects')
-    
-    // project target html code:
-    // <img src="..." class="card-img-top" alt="..."> 
-    // <div class="card-body">
-    //     <h5 class="card-title">Card title</h5>
-    //     <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-    //     <a href="#" class="btn btn-primary">Go somewhere</a>
-    // </div>
+async function loadProjects(){
+// function that loads all the public repositories 
+    console.log('loading projects...')
 
+    var repos = null
+    var aux = true
+    if(document.querySelector('#projects').innerHTML == ''){
+        await fetch('https://api.github.com/users/aacraf/repos', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(repos => {
+
+            console.log(aux)
+            if(aux)
+            {
+                aux = false
+                console.log("aqui entro")
+                var row_size = 3
+                let count = 0;
+                // store the names to avoid getting the elements twice (TODO: fix this)
+                for (var i = 0; i < repos.length; i++) {
+                    if (count % row_size == 0) {
+                        var row = document.createElement('div')
+                        row.classList.add('row')
+                        row.classList.add('justify-content-around')
+                        row.classList.add('m-5')
+                        document.querySelector('#projects').appendChild(row)
+                    }
+                    var project = document.createElement('div')
+                    project.classList.add('project')
+                    project.classList.add('col-md-3')
+
+                    // button that will open the project details
+                    var view_details = document.createElement('button') 
+                    view_details.classList.add('btn')
+                    view_details.classList.add('btn-primary')
+                    view_details.innerHTML = 'View'
+                    view_details.value = i
+                    view_details.addEventListener('click', function(e){
+                        var repo = repos[parseInt(e.target.value)]
+                        viewProject(repo)
+                    })
+
+                    // card containing the information of the project
+                    var card = document.createElement('div')
+                    card.classList.add('card-body')
+                    card.classList.add('col')
+                    card.innerHTML = `
+                        <img class="card-img-top" src="..." alt="Image" style="min-heigth=20px; ">
+                        <h5 class="card-title">${repos[i].name}</h5>
+                        <p class="card-text"> ${repos[i].description?repos[i].description:"No description found"}</p>
+                    `
+
+                    card.appendChild(view_details)
+                    project.appendChild(card)
+                    row.appendChild(project)
+                    count++
+                }
+                aux=false
+            }
+        })
+        .catch(err => console.log(err))   
+    }
+}
+
+
+async function viewProject(repo){
+    // function that let you view the details of a repository
+
+    document.querySelector('#projects').innerHTML = ''
+    // show project details...
+
+    var project = document.createElement('div')
+    project.classList.add('project-details')
+
+    var text = ""
+
+    // Get the Readme of the project in order to view the information
+    await fetch(repo.contents_url.replace('{+path}', 'README.md'))
+    .then(response => response.json())
+    .then(data => text = data.content)
+    .catch(err => text = "")   
+
+    // TODO: Get the README file and base it on that
+    project.innerHTML = `
+        <h3> ${repo.name} </h3>
+        <span>Last update: ${repo.updated_at}</span>
+        <p> ${repo.description?repo.description:"Project with no description"} </p>
+        <p> ${text?converter.makeHtml(atob(text)):"No README file found"} </p>
+
+
+        <a href="${repo.html_url}" target="_blank" class="btn btn-primary">See repo</a>
+    `
+    document.querySelector('#projects').appendChild(project)
+} 
+
+
+function sendMail(){
+    // send an email to my account.
+    // TODO: Search for a better option to send the email
+    const subject = document.querySelector('#subject-form').value
+    const message = document.querySelector('#message-form').value
+    window.open(`mailto:aacraaf@gmail.com?subject=${subject}&body=${message}`);
 }
