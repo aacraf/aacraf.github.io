@@ -54,7 +54,10 @@ async function loadDescription(){
     .then(response => response.json())
     .then(text => {
         description = converter.makeHtml(atob(text.content))
-        document.querySelector('#me').innerHTML = description
+        document.querySelector('#me').innerHTML = `
+        <div class="description m-5">
+        ${description}
+        </div>`
     })
     
 }
@@ -99,7 +102,7 @@ async function loadProjects(){
                     // button that will open the project details
                     var view_details = document.createElement('button') 
                     view_details.classList.add('btn')
-                    view_details.classList.add('btn-primary')
+                    view_details.classList.add('btn-secondary')
                     view_details.innerHTML = 'View'
                     view_details.value = i
                     view_details.addEventListener('click', function(e){
@@ -111,9 +114,12 @@ async function loadProjects(){
                     var card = document.createElement('div')
                     card.classList.add('card-body')
                     card.classList.add('col')
+
                     card.innerHTML = `
-                        <img class="card-img-top" src="..." alt="Image" style="min-heigth=20px; ">
-                        <h5 class="card-title">${repos[i].name}</h5>
+                        <div class="image-placeholder">
+                            <h4>image</h4>
+                        </div>
+                        <h5 class="card-title"><strong>${repos[i].name}</strong></h5>
                         <p class="card-text"> ${repos[i].description?repos[i].description:"No description found"}</p>
                     `
 
@@ -122,17 +128,28 @@ async function loadProjects(){
                     row.appendChild(project)
                     count++
                 }
-                aux=false
+                // remove half of the projects since I get two responses (TODO: fix this)
+                var projects = document.querySelectorAll(".project")
+                for(let i = projects.length/2; i<projects.length; i++)
+                {
+                    projects[i].parentNode.removeChild(projects[i])
+                    // projects[i].style.display = 'none';
+                }
+                console.log(projects)
+
             }
         })
         .catch(err => console.log(err))   
     }
+
+    
 }
 
 
 async function viewProject(repo){
     // function that let you view the details of a repository
 
+    var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     document.querySelector('#projects').innerHTML = ''
     // show project details...
 
@@ -149,13 +166,15 @@ async function viewProject(repo){
 
     // TODO: Get the README file and base it on that
     project.innerHTML = `
-        <h3> ${repo.name} </h3>
-        <span>Last update: ${repo.updated_at}</span>
-        <p> ${repo.description?repo.description:"Project with no description"} </p>
-        <p> ${text?converter.makeHtml(atob(text)):"No README file found"} </p>
+        <div class="description m-5">
+            <h3><strong> ${repo.name} </strong></h3>
+            <span style="font-size:0.8rem">Last update: ${new Date(repo.updated_at).toLocaleDateString("en-US", options)}</span>
+            <p style="margin-top:4%"> ${repo.description?repo.description:"Project with no description"} </p>
+            <p> ${text?converter.makeHtml(atob(text)):"No README file found"} </p>
 
 
-        <a href="${repo.html_url}" target="_blank" class="btn btn-primary">See repo</a>
+            <a style="margin-top:5em"href="${repo.html_url}" target="_blank" class="btn btn-secondary">See repo</a>
+        </div>  
     `
     document.querySelector('#projects').appendChild(project)
 } 
