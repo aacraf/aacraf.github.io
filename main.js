@@ -1,5 +1,5 @@
 
-var converter = new showdown.Converter({emoji:true})
+    var converter = new showdown.Converter({emoji:true})
 
 document.addEventListener('DOMContentLoaded', () => {
     // by default show the description page
@@ -186,4 +186,4 @@ function sendMail(){
     const subject = document.querySelector('#subject-form').value
     const message = document.querySelector('#message-form').value
     window.open(`mailto:aacraaf@gmail.com?subject=${subject}&body=${message}`);
-}
+}   

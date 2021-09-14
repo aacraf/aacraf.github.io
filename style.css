@@ -1,4 +1,4 @@
-#portada{
+/* #portada{
     text-align: center;
     background-color: aquamarine;
     height: 16rem;
@@ -43,7 +43,7 @@ ul#menu li{
 
 #contact{
     width: 60%;
-    margin: 0rem 15rem 0rem 15rem;
+    /* margin: 0rem 15rem 0rem 15rem; */
 }
 
 #projects{
@@ -54,7 +54,7 @@ ul#menu li{
     background-color: white !important;
     border: 1px black solid;
 } */
-
+/* 
 .project{
     background-color: white !important;
     border: 1px lightgray solid;
@@ -99,4 +99,4 @@ ul#menu li{
 
 .card-text{
     min-height: 4em;
-}
+} */
